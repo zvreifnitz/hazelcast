@@ -439,7 +439,9 @@ public class MapContainer {
     }
 
     public boolean shouldCloneOnEntryProcessing(int partitionId) {
-        return getIndexes(partitionId).haveAtLeastOneIndex() && OBJECT.equals(mapConfig.getInMemoryFormat());
+        return getIndexes(partitionId).haveAtLeastOneIndex()
+                && OBJECT.equals(mapConfig.getInMemoryFormat())
+                && !mapConfig.isSkipCloneOnEntryProcessing();
     }
 
     public ObjectNamespace getObjectNamespace() {

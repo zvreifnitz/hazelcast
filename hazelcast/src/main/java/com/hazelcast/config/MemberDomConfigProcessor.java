@@ -1631,6 +1631,8 @@ class MemberDomConfigProcessor extends AbstractDomConfigProcessor {
                 mapConfig.setQuorumName(value);
             } else if ("query-caches".equals(nodeName)) {
                 mapQueryCacheHandler(node, mapConfig);
+            } else if ("skip-clone-on-entry-processing".equals(nodeName)) {
+                mapConfig.setSkipCloneOnEntryProcessing(getBooleanValue(value));
             } else if ("map-eviction-policy-class-name".equals(nodeName)) {
                 String className = checkHasText(getTextContent(node), "map-eviction-policy-class-name cannot be null or empty");
                 try {

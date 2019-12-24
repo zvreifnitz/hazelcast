@@ -165,6 +165,8 @@ public class MapConfig implements SplitBrainMergeTypeProvider, IdentifiedDataSer
 
     private HotRestartConfig hotRestartConfig = new HotRestartConfig();
 
+    private boolean skipCloneOnEntryProcessing;
+
     private transient MapConfigReadOnly readOnly;
 
     // we use these 2 flags to detect a conflict between (deprecated) #setOptimizeQueries()
@@ -209,6 +211,7 @@ public class MapConfig implements SplitBrainMergeTypeProvider, IdentifiedDataSer
                 ? new PartitioningStrategyConfig(config.getPartitioningStrategyConfig()) : null;
         this.quorumName = config.quorumName;
         this.hotRestartConfig = new HotRestartConfig(config.hotRestartConfig);
+        this.skipCloneOnEntryProcessing = config.skipCloneOnEntryProcessing;
     }
 
     /**
@@ -907,6 +910,27 @@ public class MapConfig implements SplitBrainMergeTypeProvider, IdentifiedDataSer
         return this;
     }
 
+    /**
+     * Checks if cloning should be skipped while executing {@link com.hazelcast.map.EntryProcessor}
+     * when {@link InMemoryFormat} is {@link InMemoryFormat#OBJECT} and map has at least one index
+     *
+     * @return {@code true} if cloning should be skipped, {@code false} otherwise
+     * @since 3.12.6
+     */
+    public boolean isSkipCloneOnEntryProcessing() {
+        return skipCloneOnEntryProcessing;
+    }
+
+    /**
+     * Set is cloning should be skipped while executing {@link com.hazelcast.map.EntryProcessor}
+     * when {@link InMemoryFormat} is {@link InMemoryFormat#OBJECT} and map has at least one index
+     *
+     * @param skipCloneOnEntryProcessing {@code true} if cloning should be skipped, {@code false} otherwise
+     */
+    public void setSkipCloneOnEntryProcessing(boolean skipCloneOnEntryProcessing) {
+        this.skipCloneOnEntryProcessing = skipCloneOnEntryProcessing;
+    }
+
     @Override
     @SuppressWarnings("checkstyle:methodlength")
     public final boolean equals(Object o) {
@@ -995,6 +1019,9 @@ public class MapConfig implements SplitBrainMergeTypeProvider, IdentifiedDataSer
         if (quorumName != null ? !quorumName.equals(that.quorumName) : that.quorumName != null) {
             return false;
         }
+        if (skipCloneOnEntryProcessing != that.skipCloneOnEntryProcessing) {
+            return false;
+        }
         return hotRestartConfig != null ? hotRestartConfig.equals(that.hotRestartConfig) : that.hotRestartConfig == null;
     }
 
@@ -1025,6 +1052,7 @@ public class MapConfig implements SplitBrainMergeTypeProvider, IdentifiedDataSer
         result = 31 * result + (partitioningStrategyConfig != null ? partitioningStrategyConfig.hashCode() : 0);
         result = 31 * result + (quorumName != null ? quorumName.hashCode() : 0);
         result = 31 * result + (hotRestartConfig != null ? hotRestartConfig.hashCode() : 0);
+        result = 31 * result + (skipCloneOnEntryProcessing ? 1 : 0);
         return result;
     }
 
@@ -1055,6 +1083,7 @@ public class MapConfig implements SplitBrainMergeTypeProvider, IdentifiedDataSer
                 + ", quorumName=" + quorumName
                 + ", queryCacheConfigs=" + queryCacheConfigs
                 + ", cacheDeserializedValues=" + cacheDeserializedValues
+                + ", skipCloneOnEntryProcessing=" + skipCloneOnEntryProcessing
                 + '}';
     }
 
@@ -1097,6 +1126,7 @@ public class MapConfig implements SplitBrainMergeTypeProvider, IdentifiedDataSer
         // RU_COMPAT_3_11
         if (out.getVersion().isGreaterOrEqual(Versions.V3_12)) {
             out.writeShort(metadataPolicy.getId());
+            out.writeBoolean(skipCloneOnEntryProcessing);
         }
     }
 
@@ -1129,6 +1159,7 @@ public class MapConfig implements SplitBrainMergeTypeProvider, IdentifiedDataSer
         // RU_COMPAT_3_11
         if (in.getVersion().isGreaterOrEqual(Versions.V3_12)) {
             metadataPolicy = MetadataPolicy.getById(in.readShort());
+            skipCloneOnEntryProcessing = in.readBoolean();
         }
     }
 }
