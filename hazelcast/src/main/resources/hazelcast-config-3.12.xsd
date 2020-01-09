@@ -356,6 +356,13 @@
                 </xs:annotation>
             </xs:element>
             <xs:element name="query-caches" type="query-caches" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="skip-clone-on-entry-processing" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        Skipping clone of entry on entry processing invocation.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:all>
         <xs:attribute name="name" use="required">
             <xs:annotation>
